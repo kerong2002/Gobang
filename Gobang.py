@@ -17,19 +17,23 @@ GAME_STAR_Y = [3, 11, 3, 11, 7]  # game star point position y
 GAME_PIECE_SIZE = 15  # game piece size
 GAME_STAR_SIZE = 3  # game star circle size
 GAME_CLICK_OFFSET = 10  # game click offset
-GAME_PIECE_CHOSE = 0  # game piece chose number
 GAME_BOUNDARY_OFFSET = 15  # game boundary offset
 GAME_BOUNDARY_SIZE = 3  # game boundary size
-piece_color = ["black", "white"]  # piece color
+PIECE_COLOR = ["black", "white"]  # piece color
 
 # ==========<global variable>==========
 mouse_click_x = 0  # game mouse click x position
 mouse_click_y = 0  # game mouse click y position
 board = []  # game data
+game_piece_chose = 0  # game piece chose number
+game_winner = -1    # winner color
+text_var = StringVar()
 canvas = Canvas(window,
                 bg="sandyBrown",  # background color
                 width=(GAME_COLUMN_SIZE + 1) * CANVAS_LINE_OFFSET + GAME_WHITE_SITE,  # width size
                 height=(GAME_ROW_SIZE + 1) * CANVAS_LINE_OFFSET)  # height size
+
+
 # ==========<draw the checkerboard>==========
 def drawBoardReset():
     global canvas
@@ -85,20 +89,26 @@ def drawBoardReset():
     for b in range(GAME_BOUNDARY_SIZE):
         canvas.create_line(GAME_COLUMN_SIZE * CANVAS_LINE_OFFSET + GAME_BOUNDARY_OFFSET + b,  # start y position
                            CANVAS_LINE_OFFSET - GAME_BOUNDARY_OFFSET,  # start x position
-                           GAME_COLUMN_SIZE * CANVAS_LINE_OFFSET + GAME_BOUNDARY_OFFSET + b, # end y position
+                           GAME_COLUMN_SIZE * CANVAS_LINE_OFFSET + GAME_BOUNDARY_OFFSET + b,  # end y position
                            GAME_COLUMN_SIZE * CANVAS_LINE_OFFSET + GAME_BOUNDARY_OFFSET)  # end x position
 
 
 def boardDataReset():
     # ==========<board data>==========
     global board
+    global text_var
+    global game_piece_chose
+    global game_winner
+
     del board[:]
-    global GAME_PIECE_CHOSE
+    game_piece_chose = 0
+    game_winner = -1
+    text_var.set(PIECE_COLOR [game_piece_chose] + "\'s turn")
+
     for y in range(GAME_ROW_SIZE):
         board.append([])
         for x in range(GAME_COLUMN_SIZE):
             board[y].append('-')
-    GAME_PIECE_CHOSE = 0
     return
 
 
@@ -109,6 +119,7 @@ def mousePosition(event):
     mouse_click_y = event.y  # change global y variable
     mouse_click_x = event.x  # change global x variable
     mouseJudge()
+
     return
 
 
@@ -133,20 +144,111 @@ def mouseJudge():
         return
 
 
+def checkVictory(get_y, get_x):
+    global game_winner
+    column_cnt_w = 0
+    column_cnt_b = 0
+    for x in range(get_x - 4, get_x + 5):
+        if 0 <= x < GAME_COLUMN_SIZE and board[get_y][x] == 'X':
+            column_cnt_b += 1
+            column_cnt_w = 0
+        elif 0 <= x < GAME_COLUMN_SIZE and board[get_y][x] == 'O':
+            column_cnt_w += 1
+            column_cnt_b = 0
+        else:
+            column_cnt_w = 0
+            column_cnt_b = 0
+        if column_cnt_w >= 5:
+            game_winner = 1
+            return
+        if column_cnt_b >= 5:
+            game_winner = 0
+            return
+
+    row_cnt_w = 0
+    row_cnt_b = 0
+    for y in range(get_y - 4, get_y + 5):
+        if 0 <= y < GAME_ROW_SIZE and board[y][get_x] == 'X':
+            row_cnt_b += 1
+            row_cnt_w = 0
+        elif 0 <= y < GAME_ROW_SIZE and board[y][get_x] == 'O':
+            row_cnt_w += 1
+            row_cnt_b = 0
+        else:
+            row_cnt_w = 0
+            row_cnt_b = 0
+        if row_cnt_w >= 5:
+            game_winner = 1
+            return
+        if row_cnt_b >= 5:
+            game_winner = 0
+            return
+
+    slopeL_w = 0
+    slopeL_b = 0
+    for t in range(-4, 5):
+        if 0 <= get_y + t < GAME_ROW_SIZE and 0 <= get_x + t < GAME_COLUMN_SIZE and \
+                board[get_y + t][get_x + t] == 'X':
+            slopeL_b += 1
+            slopeL_w = 0
+        elif 0 <= get_y + t < GAME_ROW_SIZE and 0 <= get_x + t < GAME_COLUMN_SIZE and\
+                board[get_y + t][get_x + t] == 'O':
+            slopeL_w += 1
+            slopeL_b = 0
+        else:
+            slopeL_w = 0
+            slopeL_b = 0
+        if slopeL_w >= 5:
+            game_winner = 1
+            return
+        if slopeL_b >= 5:
+            game_winner = 0
+            return
+
+    slopeR_w = 0
+    slopeR_b = 0
+    for t in range(-4, 5):
+        if 0 <= get_y + t < GAME_ROW_SIZE and 0 <= get_x + (-t) < GAME_COLUMN_SIZE and \
+                board[get_y + t][get_x + (-t)] == 'X':
+            slopeR_b += 1
+            slopeR_w = 0
+        elif 0 <= get_y + t < GAME_ROW_SIZE and 0 <= get_x + (-t) < GAME_COLUMN_SIZE and \
+                board[get_y + t][get_x + (-t)] == 'O':
+            slopeR_w += 1
+            slopeR_b = 0
+        else:
+            slopeR_w = 0
+            slopeR_b = 0
+        if slopeR_w >= 5:
+            game_winner = 1
+            return
+        if slopeR_b >= 5:
+            game_winner = 0
+            return
+
+
 def putPiece(get_y, get_x):
-    global GAME_PIECE_CHOSE
+    global game_piece_chose
+    global text_var
     if board[get_y - 1][get_x - 1] == '-':
-        board[get_y - 1][get_x - 1] = 'O'
         canvas.create_oval(get_x * CANVAS_LINE_OFFSET - GAME_PIECE_SIZE, get_y * CANVAS_LINE_OFFSET - GAME_PIECE_SIZE,
                            get_x * CANVAS_LINE_OFFSET + GAME_PIECE_SIZE, get_y * CANVAS_LINE_OFFSET + GAME_PIECE_SIZE,
-                           fill=piece_color[GAME_PIECE_CHOSE], tags="piece")
-        if GAME_PIECE_CHOSE == 0:
-            GAME_PIECE_CHOSE = 1
+                           fill=PIECE_COLOR[game_piece_chose], tags="piece")
+        if game_piece_chose == 0:
+            board[get_y - 1][get_x - 1] = 'X'
+            game_piece_chose = 1
         else:
-            GAME_PIECE_CHOSE = 0
+            board[get_y - 1][get_x - 1] = 'O'
+            game_piece_chose = 0
+
+        checkVictory(get_y - 1, get_x - 1)
+        if game_winner == -1:
+            text_var.set(PIECE_COLOR [game_piece_chose] + "\'s turn")
+        else:
+            text_var.set(PIECE_COLOR[game_winner] + "\'s winner")
         return
     else:
-        print('This position have other piece')
+        # print('This position have other piece')
         return
 
 
@@ -156,6 +258,8 @@ canvas.bind("<Button-1>", mousePosition)  # bind left button click and find posi
 def main():
     drawBoardReset()
     boardDataReset()
+
+    return
 
 
 button1 = Button(window,
@@ -169,6 +273,17 @@ button1 = Button(window,
 button1.grid(row=4,
              column=1)
 
+text_var.set(PIECE_COLOR [game_piece_chose] + "\'s turn")
+text_label = Label(window,
+                   textvariable=text_var,
+                   font=('Helvetica bold', 26),
+                   bg="sky blue",
+                   )
+
+text_label.grid(row=2,
+                column=1)
+
 if __name__ == '__main__':
     main()
+
 window.mainloop()
