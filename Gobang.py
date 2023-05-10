@@ -27,6 +27,7 @@ mouse_click_y = 0  # game mouse click y position
 board = []  # game data
 game_piece_chose = 0  # game piece chose number
 game_winner = -1    # winner color
+game_over = 0  # game stop
 text_var = StringVar()
 canvas = Canvas(window,
                 bg="sandyBrown",  # background color
@@ -99,10 +100,11 @@ def boardDataReset():
     global text_var
     global game_piece_chose
     global game_winner
-
+    global game_over
     del board[:]
     game_piece_chose = 0
     game_winner = -1
+    game_over = 0
     text_var.set(PIECE_COLOR [game_piece_chose] + "\'s turn")
 
     for y in range(GAME_ROW_SIZE):
@@ -230,6 +232,9 @@ def checkVictory(get_y, get_x):
 def putPiece(get_y, get_x):
     global game_piece_chose
     global text_var
+    global game_over
+    if game_over:
+        return
     if board[get_y - 1][get_x - 1] == '-':
         canvas.create_oval(get_x * CANVAS_LINE_OFFSET - GAME_PIECE_SIZE, get_y * CANVAS_LINE_OFFSET - GAME_PIECE_SIZE,
                            get_x * CANVAS_LINE_OFFSET + GAME_PIECE_SIZE, get_y * CANVAS_LINE_OFFSET + GAME_PIECE_SIZE,
@@ -246,6 +251,7 @@ def putPiece(get_y, get_x):
             text_var.set(PIECE_COLOR [game_piece_chose] + "\'s turn")
         else:
             text_var.set(PIECE_COLOR[game_winner] + "\'s winner")
+            game_over = 1
         return
     else:
         # print('This position have other piece')

@@ -23,14 +23,15 @@ GAME_CLICK_OFFSET = 10  # game click offset
 GAME_BOUNDARY_OFFSET = 15  # game boundary offset
 GAME_BOUNDARY_SIZE = 3  # game boundary size
 PIECE_COLOR = ["black", "white"]  # piece color
-HOST = "localhost"
-PORT = 8888
+HOST = "127.0.0.1"
+PORT = 8000
 # ==========<global variable>==========
 mouse_click_x = 0  # game mouse click x position
 mouse_click_y = 0  # game mouse click y position
 board = []  # game data
 game_piece_chose = 0  # game piece chose number
 game_winner = -1  # winner color
+game_over = 0  # game stop
 server_turn = 1
 text_var = StringVar()
 canvas = Canvas(window,
@@ -42,6 +43,7 @@ canvas = Canvas(window,
 # ==========<send message>==========
 def sendMessage(pos):
     # send data to address
+    global s
     s.sendto(pos.encode('utf-8'), (HOST, PORT))
 
 
@@ -54,6 +56,8 @@ def receiveMessage():
         if not data:
             print("Server has exited!")
             break
+        elif receive_text[0] == "server":
+            print("server call client")
         elif receive_text[0] == "exit":
             print("Opponent exited!")
         elif receive_text[0] == "over":
@@ -72,21 +76,35 @@ def receiveMessage():
 # ==========<draw other piece>==========
 def drawOtherPiece(get_y, get_x):
     global server_turn
+    global game_over
+    global text_var
+    global game_piece_chose
     canvas.create_oval(get_x * CANVAS_LINE_OFFSET - GAME_PIECE_SIZE, get_y * CANVAS_LINE_OFFSET - GAME_PIECE_SIZE,
                        get_x * CANVAS_LINE_OFFSET + GAME_PIECE_SIZE, get_y * CANVAS_LINE_OFFSET + GAME_PIECE_SIZE,
                        fill=PIECE_COLOR[game_piece_chose], tags="piece")
+    if game_piece_chose == 0:
+        board[get_y - 1][get_x - 1] = 'X'
+        game_piece_chose = 1
+    else:
+        board[get_y - 1][get_x - 1] = 'O'
+        game_piece_chose = 0
+    checkVictory(get_y - 1, get_x - 1)
     if server_turn == 1:
         server_turn = 2
     else:
         server_turn = 1
 
+    if game_winner == -1:
+        text_var.set(PIECE_COLOR[game_piece_chose] + "\'s turn")
+    else:
+        text_var.set(PIECE_COLOR[game_winner] + "\'s winner")
+        game_over = 1
 
 def startNewThread():
-    thread=threading.Thread(target=receiveMessage, args=())
+    thread = threading.Thread(target=receiveMessage,
+                              args=(),
+                              daemon=True)
     thread.start()
-
-
-s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 
 # ==========<draw the checkerboard>==========
@@ -155,11 +173,12 @@ def boardDataReset():
     global game_piece_chose
     global game_winner
     global server_turn
-
+    global game_over
     del board[:]
     server_turn = 1
     game_piece_chose = 0
     game_winner = -1
+    game_over = 0
     text_var.set(PIECE_COLOR[game_piece_chose] + "\'s turn")
 
     for y in range(GAME_ROW_SIZE):
@@ -288,6 +307,9 @@ def putPiece(get_y, get_x):
     global game_piece_chose
     global text_var
     global server_turn
+    global game_over
+    if game_over:
+        return
     if server_turn == 1:
         showinfo(title="Notice", message="Not your turn yet.")
         return
@@ -301,11 +323,10 @@ def putPiece(get_y, get_x):
         else:
             board[get_y - 1][get_x - 1] = 'O'
             game_piece_chose = 0
-        pos = str(get_y - 1) + "," + str(get_x - 1)
+        pos = str(get_y) + "," + str(get_x)
+        print("client go", str(get_y - 1) + "," + str(get_x - 1))
         sendMessage("move|" + pos)
-        print("server go", pos)
         checkVictory(get_y - 1, get_x - 1)
-
         if server_turn == 1:
             server_turn = 2
         else:
@@ -315,6 +336,7 @@ def putPiece(get_y, get_x):
             text_var.set(PIECE_COLOR[game_piece_chose] + "\'s turn")
         else:
             text_var.set(PIECE_COLOR[game_winner] + "\'s winner")
+            game_over = 1
         return
     else:
         # print('This position have other piece')
@@ -353,10 +375,21 @@ text_label.grid(row=2,
                 column=1)
 
 
-if __name__ == '__main__':
-    main()
-    sendMessage('join|')
-    startNewThread()
+def callServer(event):
+    sendMessage("client")
+    return
+
+
+button2 = Button(window, text="client")
+button2.bind("<Button-1>", callServer)
+button2.grid(row=5,
+             column=1)
+
+
+main()
+s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+sendMessage('join|')
+startNewThread()
 
 
 window.mainloop()
