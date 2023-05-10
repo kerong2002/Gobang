@@ -1,6 +1,6 @@
 # Gobang
 Gobang
-![image](https://github.com/kerong2002/Gobang/assets/70834651/868b56a4-cb5f-433e-8443-04542f4838b9)
+![image](https://github.com/kerong2002/Gobang/assets/70834651/7db57c1e-cefe-4815-b10d-d5db0b715f8a)
 
 ## 2023/05/09 
 1. 透過canvas繪製棋盤框線
