@@ -23,7 +23,7 @@ GAME_CLICK_OFFSET = 10  # game click offset
 GAME_BOUNDARY_OFFSET = 15  # game boundary offset
 GAME_BOUNDARY_SIZE = 3  # game boundary size
 PIECE_COLOR = ["black", "white"]  # piece color
-HOST = "26.210.33.158"
+HOST = "127.0.0.1"
 PORT = 8000
 ADDR = (HOST, PORT)
 
