@@ -34,6 +34,8 @@ board = []  # game data
 game_piece_chose = 0  # game piece chose number
 game_winner = -1  # winner color
 game_over = 0  # game stop
+pre_y = -1
+pre_x = -1
 server_turn = 1
 text_var = StringVar()
 canvas = Canvas(window,
@@ -69,6 +71,9 @@ def receiveMessage():
             print("client call server")
         elif receive_text[0] == "exit":
             print("Opponent exited!")
+        elif receive_text[0] == "reset":
+            print("reset game")
+            main()
         elif receive_text[0] == "over":
             print("Opponent wins!")
             showinfo(title="Info", message=data.split('|')[1])
@@ -88,9 +93,14 @@ def drawOtherPiece(get_y, get_x):
     global game_over
     global text_var
     global game_piece_chose
+    global pre_y
+    global pre_x
+    pre_y = get_y - 1
+    pre_x = get_x - 1
     canvas.create_oval(get_x * CANVAS_LINE_OFFSET - GAME_PIECE_SIZE, get_y * CANVAS_LINE_OFFSET - GAME_PIECE_SIZE,
                        get_x * CANVAS_LINE_OFFSET + GAME_PIECE_SIZE, get_y * CANVAS_LINE_OFFSET + GAME_PIECE_SIZE,
                        fill=PIECE_COLOR[game_piece_chose], tags="piece")
+    lastPutPiece()
     if game_piece_chose == 0:
         board[get_y - 1][get_x - 1] = 'X'
         game_piece_chose = 1
@@ -185,11 +195,16 @@ def boardDataReset():
     global game_winner
     global server_turn
     global game_over
+    global pre_y
+    global pre_x
     del board[:]
+
     server_turn = 1
     game_piece_chose = 0
     game_winner = -1
     game_over = 0
+    pre_y = -1
+    pre_x = -1
     text_var.set(PIECE_COLOR[game_piece_chose] + "\'s turn")
 
     for y in range(GAME_ROW_SIZE):
@@ -229,6 +244,38 @@ def mouseJudge():
     else:
         # print('click not ok')
         return
+
+
+def lastPutPiece():
+    if pre_y != -1 and pre_x != -1:
+        # ==========<draw last point>==========
+        for star_run in range(len(GAME_STAR_X)):
+            canvas.create_oval(CANVAS_LINE_OFFSET * pre_x + CANVAS_LINE_OFFSET - GAME_STAR_SIZE,
+                               # start x position
+                               CANVAS_LINE_OFFSET * pre_y + CANVAS_LINE_OFFSET - GAME_STAR_SIZE,
+                               # start y position
+                               CANVAS_LINE_OFFSET * pre_x + CANVAS_LINE_OFFSET + GAME_STAR_SIZE,
+                               # end x position
+                               CANVAS_LINE_OFFSET * pre_y + CANVAS_LINE_OFFSET + GAME_STAR_SIZE,
+                               # end y position
+                               fill="red",  # fill star color
+                               outline='')
+
+
+def recoverLastPutPiece():
+    if pre_y != -1 and pre_x != -1:
+        # ==========<draw last point>==========
+        for star_run in range(len(GAME_STAR_X)):
+            canvas.create_oval(CANVAS_LINE_OFFSET * pre_x + CANVAS_LINE_OFFSET - GAME_STAR_SIZE,
+                               # start x position
+                               CANVAS_LINE_OFFSET * pre_y + CANVAS_LINE_OFFSET - GAME_STAR_SIZE,
+                               # start y position
+                               CANVAS_LINE_OFFSET * pre_x + CANVAS_LINE_OFFSET + GAME_STAR_SIZE,
+                               # end x position
+                               CANVAS_LINE_OFFSET * pre_y + CANVAS_LINE_OFFSET + GAME_STAR_SIZE,
+                               # end y position
+                               fill=PIECE_COLOR[game_piece_chose],  # fill star color
+                               outline='')
 
 
 def checkVictory(get_y, get_x):
@@ -334,6 +381,7 @@ def putPiece(get_y, get_x):
         else:
             board[get_y - 1][get_x - 1] = 'O'
             game_piece_chose = 0
+        recoverLastPutPiece()
         pos = str(get_y) + "," + str(get_x)
         print("server go", str(get_y - 1) + "," + str(get_x - 1))
         sendMessage("move|" + pos)
@@ -360,7 +408,12 @@ canvas.bind("<Button-1>", mousePosition)  # bind left button click and find posi
 def main():
     drawBoardReset()
     boardDataReset()
+    return
 
+
+def resetGame():
+    main()
+    sendMessage("reset|")
     return
 
 
@@ -370,7 +423,7 @@ button1 = Button(window,
                  bg='pink',
                  width=15,
                  height=4,
-                 command=main)
+                 command=resetGame)
 
 button1.grid(row=4,
              column=1)
