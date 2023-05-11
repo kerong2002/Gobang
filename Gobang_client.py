@@ -432,15 +432,16 @@ def resetGame():
 
 
 reStartButton = Button(window,
-                 text="Re-Start",
-                 fg='black',
-                 bg='pink',
-                 width=15,
-                 height=4,
-                 command=resetGame)
+                       text="Re-Start",
+                       fg='black',
+                       bg='pink',
+                       width=15,
+                       height=4,
+                       command=resetGame)
 
 reStartButton.grid(row=4,
-             column=1)
+                   column=1)
+
 
 text_var.set(PIECE_COLOR[game_piece_chose] + "\'s turn")
 text_label = Label(window,
