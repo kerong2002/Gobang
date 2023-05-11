@@ -444,16 +444,16 @@ def resetGame():
     return
 
 
-button1 = Button(window,
-                 text="Re-Start",
-                 fg='black',
-                 bg='pink',
-                 width=15,
-                 height=4,
-                 command=resetGame)
+reStartButton = Button(window,
+                       text="Re-Start",
+                       fg='black',
+                       bg='pink',
+                       width=15,
+                       height=4,
+                       command=resetGame)
 
-button1.grid(row=4,
-             column=1)
+reStartButton.grid(row=4,
+                   column=1)
 
 text_var.set(PIECE_COLOR[game_piece_chose] + "\'s turn")
 text_label = Label(window,
@@ -466,15 +466,17 @@ text_label.grid(row=2,
                 column=1)
 
 
-def callClient(event):
+def callClient():
     sendMessage("server")
     return
 
 
-button2 = Button(window, text="server")
-button2.bind("<Button-1>", callClient)
-button2.grid(row=5,
-             column=1)
+callButton = Button(window,
+                    text="server",
+                    command=callClient)
+
+callButton .grid(row=5,
+                 column=1)
 
 
 main()
