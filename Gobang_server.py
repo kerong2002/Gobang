@@ -23,7 +23,7 @@ GAME_CLICK_OFFSET = 10  # game click offset
 GAME_BOUNDARY_OFFSET = 15  # game boundary offset
 GAME_BOUNDARY_SIZE = 3  # game boundary size
 PIECE_COLOR = ["black", "white"]  # piece color
-HOST = "127.0.0.1"
+HOST = "26.210.33.158"
 PORT = 8000
 ADDR = (HOST, PORT)
 
@@ -37,6 +37,7 @@ game_over = 0  # game stop
 pre_y = -1
 pre_x = -1
 server_turn = 1
+client_not_in_game = 1
 text_var = StringVar()
 canvas = Canvas(window,
                 bg="sandyBrown",  # background color
@@ -58,6 +59,7 @@ def sendMessage(pos):
 def receiveMessage():
     global s
     global ADDR
+    global client_not_in_game
     while True:
         data, ADDR = s.recvfrom(1024)
         data = data.decode('utf-8')
@@ -66,6 +68,7 @@ def receiveMessage():
             print('client has exited!')
             break
         elif receive_text[0] == "join":
+            client_not_in_game = 0
             print("client connect!")
         elif receive_text[0] == "client":
             print("client call server")
@@ -389,6 +392,9 @@ def putPiece(get_y, get_x):
     global game_over
     global pre_y
     global pre_x
+    if client_not_in_game:
+        showinfo(title="Notice", message="Client didn't join the game!")
+        return
     if game_over:
         return
     if server_turn == 2:
