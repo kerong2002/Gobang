@@ -1,11 +1,9 @@
 # Gobang
 <div align="center">
-   <img src="https://github.com/kerong2002/Gobang_Socket/assets/70834651/9d4a386b-0e8a-4e28-a0dd-4e313a7f6ace"  height=400 >
-   <img src="https://github.com/kerong2002/Gobang_Socket/assets/70834651/8501d646-8b91-426b-8c85-aebc81ae6f48" height=400 >
+   <img src="https://github.com/kerong2002/Gobang_Socket/assets/70834651/9d4a386b-0e8a-4e28-a0dd-4e313a7f6ace"  height=300 >
+   <img src="https://github.com/kerong2002/Gobang_Socket/assets/70834651/8501d646-8b91-426b-8c85-aebc81ae6f48" height=300 >
 </div>
 
-![image](https://github.com/kerong2002/Gobang_Socket/assets/70834651/9d4a386b-0e8a-4e28-a0dd-4e313a7f6ace)
-![image](https://github.com/kerong2002/Gobang_Socket/assets/70834651/8501d646-8b91-426b-8c85-aebc81ae6f48)
 
 ## 2023/05/09 
 1. 透過canvas繪製棋盤框線
