@@ -86,6 +86,7 @@ def drawOtherPiece(get_y, get_x):
     global game_piece_chose
     global pre_y
     global pre_x
+    recoverOtherLastPutPiece()
     pre_y = get_y - 1
     pre_x = get_x - 1
     canvas.create_oval(get_x * CANVAS_LINE_OFFSET - GAME_PIECE_SIZE, get_y * CANVAS_LINE_OFFSET - GAME_PIECE_SIZE,
@@ -125,7 +126,6 @@ def drawBoardReset():
     canvas.grid(row=0,  # game grid row position
                 column=0,  # game grid column position
                 rowspan=10)
-
     # ==========<draw board>==========
     for star_run in range(GAME_COLUMN_SIZE):
         # ==========<draw column line>==========
@@ -185,11 +185,15 @@ def boardDataReset():
     global game_winner
     global server_turn
     global game_over
+    global pre_y
+    global pre_x
     del board[:]
     server_turn = 1
     game_piece_chose = 0
     game_winner = -1
     game_over = 0
+    pre_y = -1
+    pre_x = -1
     text_var.set(PIECE_COLOR[game_piece_chose] + "\'s turn")
 
     for y in range(GAME_ROW_SIZE):
@@ -260,6 +264,26 @@ def recoverLastPutPiece():
                                CANVAS_LINE_OFFSET * pre_y + CANVAS_LINE_OFFSET + GAME_STAR_SIZE,
                                # end y position
                                fill=PIECE_COLOR[game_piece_chose],  # fill star color
+                               outline='')
+
+
+def recoverOtherLastPutPiece():
+    if pre_y != -1 and pre_x != -1:
+        if game_piece_chose:
+            reverse_color = 0
+        else:
+            reverse_color = 1
+        # ==========<draw last point>==========
+        for star_run in range(len(GAME_STAR_X)):
+            canvas.create_oval(CANVAS_LINE_OFFSET * pre_x + CANVAS_LINE_OFFSET - GAME_STAR_SIZE,
+                               # start x position
+                               CANVAS_LINE_OFFSET * pre_y + CANVAS_LINE_OFFSET - GAME_STAR_SIZE,
+                               # start y position
+                               CANVAS_LINE_OFFSET * pre_x + CANVAS_LINE_OFFSET + GAME_STAR_SIZE,
+                               # end x position
+                               CANVAS_LINE_OFFSET * pre_y + CANVAS_LINE_OFFSET + GAME_STAR_SIZE,
+                               # end y position
+                               fill=PIECE_COLOR[reverse_color],  # fill star color
                                outline='')
 
 
@@ -351,6 +375,8 @@ def putPiece(get_y, get_x):
     global text_var
     global server_turn
     global game_over
+    global pre_y
+    global pre_x
     if game_over:
         return
     if server_turn == 1:
@@ -367,6 +393,9 @@ def putPiece(get_y, get_x):
             board[get_y - 1][get_x - 1] = 'O'
             game_piece_chose = 0
         recoverLastPutPiece()
+        pre_y = get_y - 1
+        pre_x = get_x - 1
+        lastPutPiece()
         pos = str(get_y) + "," + str(get_x)
         print("client go", str(get_y - 1) + "," + str(get_x - 1))
         sendMessage("move|" + pos)

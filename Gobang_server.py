@@ -95,6 +95,7 @@ def drawOtherPiece(get_y, get_x):
     global game_piece_chose
     global pre_y
     global pre_x
+    recoverOtherLastPutPiece()
     pre_y = get_y - 1
     pre_x = get_x - 1
     canvas.create_oval(get_x * CANVAS_LINE_OFFSET - GAME_PIECE_SIZE, get_y * CANVAS_LINE_OFFSET - GAME_PIECE_SIZE,
@@ -278,6 +279,26 @@ def recoverLastPutPiece():
                                outline='')
 
 
+def recoverOtherLastPutPiece():
+    if pre_y != -1 and pre_x != -1:
+        if game_piece_chose:
+            reverse_color = 0
+        else:
+            reverse_color = 1
+        # ==========<draw last point>==========
+        for star_run in range(len(GAME_STAR_X)):
+            canvas.create_oval(CANVAS_LINE_OFFSET * pre_x + CANVAS_LINE_OFFSET - GAME_STAR_SIZE,
+                               # start x position
+                               CANVAS_LINE_OFFSET * pre_y + CANVAS_LINE_OFFSET - GAME_STAR_SIZE,
+                               # start y position
+                               CANVAS_LINE_OFFSET * pre_x + CANVAS_LINE_OFFSET + GAME_STAR_SIZE,
+                               # end x position
+                               CANVAS_LINE_OFFSET * pre_y + CANVAS_LINE_OFFSET + GAME_STAR_SIZE,
+                               # end y position
+                               fill=PIECE_COLOR[reverse_color],  # fill star color
+                               outline='')
+
+
 def checkVictory(get_y, get_x):
     global game_winner
     column_cnt_w = 0
@@ -366,6 +387,8 @@ def putPiece(get_y, get_x):
     global text_var
     global server_turn
     global game_over
+    global pre_y
+    global pre_x
     if game_over:
         return
     if server_turn == 2:
@@ -382,6 +405,10 @@ def putPiece(get_y, get_x):
             board[get_y - 1][get_x - 1] = 'O'
             game_piece_chose = 0
         recoverLastPutPiece()
+        pre_y = get_y - 1
+        pre_x = get_x - 1
+        lastPutPiece()
+        lastPutPiece()
         pos = str(get_y) + "," + str(get_x)
         print("server go", str(get_y - 1) + "," + str(get_x - 1))
         sendMessage("move|" + pos)

@@ -1,6 +1,7 @@
 # 2023-05-09 CHEN, KE-RONG
 # Gobang Game
 from tkinter import *
+import tkinter.messagebox
 
 window = Tk()
 window.configure(bg="sky blue")
@@ -28,11 +29,43 @@ board = []  # game data
 game_piece_chose = 0  # game piece chose number
 game_winner = -1    # winner color
 game_over = 0  # game stop
+pre_y = -1
+pre_x = -1
 text_var = StringVar()
 canvas = Canvas(window,
                 bg="sandyBrown",  # background color
                 width=(GAME_COLUMN_SIZE + 1) * CANVAS_LINE_OFFSET + GAME_WHITE_SITE,  # width size
                 height=(GAME_ROW_SIZE + 1) * CANVAS_LINE_OFFSET)  # height size
+
+
+def menu_operation():
+    main()
+
+
+def game_exit():
+    global window
+    window.destroy()
+
+
+# ==========<menu>==========
+menuBar = Menu(window)
+menuFile = Menu(menuBar,
+                tearoff=False)  # set file menu
+menuBar.add_cascade(label="set",
+                    font=("Tempus Sans ITC", 15),
+                    menu=menuFile)  # menu set
+menuFile.add_command(label="New game",
+                     font=("Tempus Sans ITC", 15),
+                     command=menu_operation,
+                     accelerator='(F2)')  # new game
+window.bind('<F2>', lambda event: menu_operation())   # button bind
+menuFile.add_command(label="Exit",
+                     font=("Tempus Sans ITC", 15),
+                     command=game_exit,
+                     accelerator="(Ctrl+Z)")   # exit gmae
+window.bind('<Control-z>',
+            lambda event: game_exit())    # button bind
+window.config(menu=menuBar)
 
 
 # ==========<draw the checkerboard>==========
@@ -101,6 +134,10 @@ def boardDataReset():
     global game_piece_chose
     global game_winner
     global game_over
+    global pre_y
+    global pre_x
+    pre_y = - 1
+    pre_x = - 1
     del board[:]
     game_piece_chose = 0
     game_winner = -1
@@ -144,6 +181,38 @@ def mouseJudge():
     else:
         # print('click not ok')
         return
+
+
+def lastPutPiece():
+    if pre_y != -1 and pre_x != -1:
+        # ==========<draw last point>==========
+        for star_run in range(len(GAME_STAR_X)):
+            canvas.create_oval(CANVAS_LINE_OFFSET * pre_x + CANVAS_LINE_OFFSET - GAME_STAR_SIZE,
+                               # start x position
+                               CANVAS_LINE_OFFSET * pre_y + CANVAS_LINE_OFFSET - GAME_STAR_SIZE,
+                               # start y position
+                               CANVAS_LINE_OFFSET * pre_x + CANVAS_LINE_OFFSET + GAME_STAR_SIZE,
+                               # end x position
+                               CANVAS_LINE_OFFSET * pre_y + CANVAS_LINE_OFFSET + GAME_STAR_SIZE,
+                               # end y position
+                               fill="red",  # fill star color
+                               outline='')
+
+
+def recoverLastPutPiece():
+    if pre_y != -1 and pre_x != -1:
+        # ==========<draw last point>==========
+        for star_run in range(len(GAME_STAR_X)):
+            canvas.create_oval(CANVAS_LINE_OFFSET * pre_x + CANVAS_LINE_OFFSET - GAME_STAR_SIZE,
+                               # start x position
+                               CANVAS_LINE_OFFSET * pre_y + CANVAS_LINE_OFFSET - GAME_STAR_SIZE,
+                               # start y position
+                               CANVAS_LINE_OFFSET * pre_x + CANVAS_LINE_OFFSET + GAME_STAR_SIZE,
+                               # end x position
+                               CANVAS_LINE_OFFSET * pre_y + CANVAS_LINE_OFFSET + GAME_STAR_SIZE,
+                               # end y position
+                               fill=PIECE_COLOR[game_piece_chose],  # fill star color
+                               outline='')
 
 
 def checkVictory(get_y, get_x):
@@ -233,6 +302,8 @@ def putPiece(get_y, get_x):
     global game_piece_chose
     global text_var
     global game_over
+    global pre_y
+    global pre_x
     if game_over:
         return
     if board[get_y - 1][get_x - 1] == '-':
@@ -245,7 +316,10 @@ def putPiece(get_y, get_x):
         else:
             board[get_y - 1][get_x - 1] = 'O'
             game_piece_chose = 0
-
+        recoverLastPutPiece()
+        pre_y = get_y - 1
+        pre_x = get_x - 1
+        lastPutPiece()
         checkVictory(get_y - 1, get_x - 1)
         if game_winner == -1:
             text_var.set(PIECE_COLOR [game_piece_chose] + "\'s turn")
