@@ -18,12 +18,12 @@
 <table>
   <tr>
     <td align="center">
-      <img src="/TCP.png" height="350">
+      <img src="/TCP.png" height="380">
       <br>
       TCP structure
     </td>
     <td align="center">
-      <img src="/UDP.png" height="350">
+      <img src="/UDP.png" height="380">
       <br>
       UDP structure
     </td>
