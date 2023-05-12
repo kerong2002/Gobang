@@ -1,5 +1,5 @@
 # Gobang
-![img]("https://github.com/kerong2002/Gobang_Socket/blob/main/TCP.png")
+
 <table>
   <tr>
     <td align="center">
@@ -15,7 +15,7 @@
   </tr>
 </table>
 
-
+![img](/TCP.png)
 
 - Starting the game requires two parameters, the **IP address** of the host and the **port number**. 
 - For example, you can start the game with the following command:
