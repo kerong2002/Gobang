@@ -14,10 +14,18 @@
     </td>
   </tr>
 </table>
-<div align="center">
-   <img src="/TCP.png"  height=560 >
-   <img src="/UDP.png"  height=560 >
-</div>
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="/TCP.png" height="150">
+    </td>
+    <td align="center">
+      <img src="/UDP.png" height="150">
+    </td>
+  </tr>
+</table>
+
 
 - Starting the game requires two parameters, the **IP address** of the host and the **port number**. 
 - For example, you can start the game with the following command:
