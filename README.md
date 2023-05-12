@@ -19,9 +19,13 @@
   <tr>
     <td align="center">
       <img src="/TCP.png" height="400">
+      <br>
+      TCP structure
     </td>
     <td align="center">
       <img src="/UDP.png" height="400">
+      <br>
+      UDP structure
     </td>
   </tr>
 </table>
