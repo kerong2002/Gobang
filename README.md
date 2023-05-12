@@ -1,5 +1,5 @@
 # Gobang
-
+![img]("https://github.com/kerong2002/Gobang_Socket/blob/main/TCP.png")
 <table>
   <tr>
     <td align="center">
